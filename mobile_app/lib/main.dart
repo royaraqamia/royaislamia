@@ -14,7 +14,7 @@ Future<void> main() async {
     );
   }
 
-  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
+  await Supabase.initialize(url: supabaseUrl, publishableKey: supabaseAnonKey);
   runApp(const MyApp());
 }
 
