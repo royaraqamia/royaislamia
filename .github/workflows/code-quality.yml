@@ -27,7 +27,7 @@ jobs:
         uses: super-linter/super-linter@v8.7.0
         env:
           VALIDATE_ALL_CODEBASE: false # Only scan files changed in the PR for speed
-          DEFAULT_BRANCH: main
+          DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
           # Toggle these layout flags to enforce language-specific architecture rules
