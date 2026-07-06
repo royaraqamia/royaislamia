@@ -1,0 +1,36 @@
+name: "Code Quality & Architecture"
+
+on:
+  pull_request:
+    branches: [ main, master, develop ]
+
+# Enforce least privilege access for security hardening
+permissions:
+  contents: read
+  statuses: write
+
+jobs:
+  lint:
+    name: Lint Code Base
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.0
+        with:
+          # Super-linter needs full git history to accurately scan PR diffs
+          fetch-depth: 0
+
+      - name: Super-Linter
+        uses: super-linter/super-linter@v8.7.0
+        env:
+          VALIDATE_ALL_CODEBASE: false # Only scan files changed in the PR for speed
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+          # Toggle these layout flags to enforce language-specific architecture rules
+          VALIDATE_JAVASCRIPT_ESLINT: true
+          VALIDATE_TYPESCRIPT_ESLINT: true
+          VALIDATE_PYTHON_BLACK: true
+          VALIDATE_DOCKERFILE_HADOLINT: true
+          VALIDATE_YAML: true
