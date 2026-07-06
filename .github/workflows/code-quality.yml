@@ -31,9 +31,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
           # Toggle these layout flags to enforce language-specific architecture rules
-          VALIDATE_JAVASCRIPT_ESLINT: false  # No JS files in codebase
-          VALIDATE_TYPESCRIPT_ESLINT: true   # Keep for Next.js
-          VALIDATE_PYTHON_BLACK: false      # No Python files in codebase
-          VALIDATE_DOCKERFILE_HADOLINT: false  # No Dockerfiles in codebase
-          VALIDATE_YAML: true                # Keep for YAML files
-          VALIDATE_DART: true                # Add for Flutter/Dart files
+          VALIDATE_TYPESCRIPT_ESLINT: true
+          VALIDATE_YAML: true       
+          VALIDATE_DART: true     
