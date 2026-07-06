@@ -88,7 +88,8 @@ jobs:
     - name: Build iOS App (Swift)
       if: matrix.language == 'swift' && matrix.build-mode == 'manual'
       run: |
-        flutter build ios --simulator --no-codesign
+        cd ios
+        xcodebuild -workspace Runner.xcworkspace -scheme Runner -sdk iphonesimulator -configuration Debug CODE_SIGNING_ALLOWED=NO
       working-directory: ./mobile_app
 
     # --- Perform Analysis ---

@@ -1,8 +1,10 @@
 name: "Code Quality & Architecture"
 
 on:
+  push:
+    branches: [ main, master ]
   pull_request:
-    branches: [ main, master, develop ]
+    branches: [ main, master ]
 
 # Enforce least privilege access for security hardening
 permissions:
