@@ -1,0 +1,118 @@
+# For most projects, this workflow file will not need changing; you simply need
+# to commit it to your repository.
+#
+# You may wish to alter this file to override the set of languages analyzed,
+# or to provide custom queries or build logic.
+#
+# ******** NOTE ********
+# We have attempted to detect the languages in your repository. Please check
+# the `language` matrix defined below to confirm you have the correct set of
+# supported CodeQL languages.
+#
+name: "CodeQL Advanced"
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  schedule:
+    - cron: '42 5 * * 0'
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    # Runner size impacts CodeQL analysis time. To learn more, please see:
+    #   - https://gh.io/recommended-hardware-resources-for-running-codeql
+    #   - https://gh.io/supported-runners-and-hardware-resources
+    #   - https://gh.io/using-larger-runners (GitHub.com only)
+    # Consider using larger runners or machines with greater resources for possible analysis time improvements.
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    permissions:
+      # required for all workflows
+      security-events: write
+
+      # required to fetch internal or private CodeQL packs
+      packages: read
+
+      # only required for workflows in private repositories
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - language: java-kotlin
+          build-mode: manual
+        - language: javascript-typescript
+          build-mode: none
+        - language: swift
+          build-mode: manual
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # --- Next.js Setup (JavaScript/TypeScript Analysis) ---
+    - name: Setup Node.js (Next.js)
+      if: matrix.language == 'javascript-typescript'
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: './web/package-lock.json'
+
+    - name: Install Web Dependencies
+      if: matrix.language == 'javascript-typescript'
+      run: npm ci
+      working-directory: ./web
+
+    # --- Flutter & Mobile SDK Setup (Java/Kotlin & Swift Analysis) ---
+    - name: Setup Java SDK
+      if: matrix.language == 'java-kotlin'
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Setup Flutter Environment
+      if: matrix.language == 'java-kotlin' || matrix.language == 'swift'
+      uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+        cache: true
+        cache-key: "flutter-:os:-:channel:-:version:-:arch:-:hash:"
+
+    - name: Install Flutter Dependencies
+      if: matrix.language == 'java-kotlin' || matrix.language == 'swift'
+      run: flutter pub get
+      working-directory: ./mobile_app
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v4
+      with:
+        languages: ${{ matrix.language }}
+        build-mode: ${{ matrix.build-mode }}
+
+    # --- CodeQL Manual Compilations ---
+    - name: Build Android App (Java/Kotlin)
+      if: matrix.language == 'java-kotlin' && matrix.build-mode == 'manual'
+      run: flutter build apk --debug
+      working-directory: ./mobile_app
+
+    - name: Build iOS App (Swift)
+      if: matrix.language == 'swift' && matrix.build-mode == 'manual'
+      run: |
+        cd ios
+        pod install
+        cd ..
+        flutter build ios --config-only
+      working-directory: ./mobile_app
+
+    # --- Perform Analysis ---
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v4
+      with:
+        category: "/language:${{matrix.language}}"
