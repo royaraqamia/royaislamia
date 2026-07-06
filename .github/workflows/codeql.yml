@@ -88,7 +88,7 @@ jobs:
     - name: Build iOS App (Swift)
       if: matrix.language == 'swift' && matrix.build-mode == 'manual'
       run: |
-        flutter build ios --config-only
+        flutter build ios --simulator --no-codesign --config-only
         cd ios
         pod install
       working-directory: ./mobile_app
