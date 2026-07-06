@@ -31,6 +31,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
           # Toggle these layout flags to enforce language-specific architecture rules
-          VALIDATE_TYPESCRIPT_ESLINT: true
-          VALIDATE_YAML: true       
-          VALIDATE_DART: true     
+          VALIDATE_YAML: true
+
+      - name: Setup Build Environment
+        uses: ./.github/actions/setup-environment
+        with:
+          node-version: '24'
+          flutter-version: '3.44.0'
+
+      - name: Next.js Lint
+        run: cd web && npm run lint
+
+      - name: Flutter Analyze
+        run: |
+          cd mobile_app
+          flutter analyze
